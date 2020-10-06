@@ -41,8 +41,9 @@ class Issues:
             {
                 # filter dict fields
                 k: v for k, v in raw_issue.items() if k in self.disp_fields
-            } for raw_issue in raw_issues if 'pull_request' not in raw_issue
+            } for raw_issue in raw_issues if 'pull_request' in raw_issue  # not in
         ]
+        self.data = sorted(self.data, key=lambda v: v[NUMBER], reverse=True)
 
     def count(self):
         return len(self.data)
@@ -53,15 +54,16 @@ class Issues:
     def print_as_csv(self):
         s = StringIO()
         writer = csv.writer(
-            s, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL
+            s, delimiter=' ', quotechar='"', quoting=csv.QUOTE_MINIMAL
         )
 
         # header row
         writer.writerow(self.disp_fields)
         for issue in self.data:
-            row = [self.parse_value(k, issue.get(k)) for k in self.disp_fields]
+            # row = [self.parse_value(k, issue.get(k)) for k in self.disp_fields]
+            row = [' - {}'.format(self.parse_value(TITLE, issue.get(TITLE))), '[PR]({})'.format(issue.get(URL))]
             writer.writerow(row)
-        print(s.getvalue(), end='')
+        print(s.getvalue().replace('"', ''), end='')
         s.close()
 
     @staticmethod
